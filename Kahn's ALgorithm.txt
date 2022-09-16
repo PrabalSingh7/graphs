@@ -1,0 +1,63 @@
+#include <bits/stdc++.h> 
+
+void prepareAdjList(vector<vector<int>> &edges, unordered_map<int,list<int>> &adj)    {
+    
+    for(int i=0 ; i<edges.size() ; i++)    {
+        int u = edges[i][0];
+        int v = edges[i][1];
+        
+        adj[u].push_back(v);
+    }
+}
+
+
+void processingIndegree(vector<int> &indegree, unordered_map<int,list<int>> &adj, queue<int> &q, int v )    {
+    
+    // finding indegree of all vertices
+    for(auto i : adj)    {
+        for(auto j : i.second)
+            indegree[j]++;
+    }
+    
+    // pushing all indegree==0 vertices in queue
+    for(int i=0; i<v; i++)    {
+        if(indegree[i]==0)
+            q.push(i);
+    }
+}
+
+
+void kahnAlgo( queue<int> &q, vector<int> &kahnOrder, vector<int> &indegree, unordered_map<int,list<int>> &adj )    {
+    
+    while(!q.empty())    {
+        int frontnode = q.front();
+        q.pop();
+        
+        kahnOrder.push_back(frontnode);
+        
+        for(auto neighbour : adj[frontnode])    {
+            indegree[neighbour]--;
+            if(indegree[neighbour]==0)
+                q.push(neighbour);
+        }
+    }
+}
+
+
+vector<int> topologicalSort(vector<vector<int>> &edges, int v, int e) {
+    
+    //preparing adjacency list
+    unordered_map<int,list<int>> adj;
+    prepareAdjList(edges,adj);
+    
+    //processing the indegree's as per Kahn's Ahorithum
+    vector<int> indegree;
+    queue<int> q;
+    processingIndegree(indegree, adj, q, v);
+    
+    //perform enhanced BFS(Kahn's Algo)
+    vector<int> kahnOrder;
+    kahnAlgo(q,kahnOrder,indegree,adj);
+    
+    return kahnOrder;
+}
