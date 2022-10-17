@@ -1,0 +1,96 @@
+130. Surrounded Regions
+Medium
+
+5944
+
+1360
+
+Add to List
+
+Share
+Given an m x n matrix board containing 'X' and 'O', capture all regions that are 4-directionally surrounded by 'X'.
+
+A region is captured by flipping all 'O's into 'X's in that surrounded region.
+
+ 
+
+Example 1:
+
+
+Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
+Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+Explanation: Notice that an 'O' should not be flipped if:
+- It is on the border, or
+- It is adjacent to an 'O' that should not be flipped.
+The bottom 'O' is on the border, so it is not flipped.
+The other three 'O' form a surrounded region, so they are flipped.
+Example 2:
+
+Input: board = [["X"]]
+Output: [["X"]]
+ 
+
+Constraints:
+
+m == board.length
+n == board[i].length
+1 <= m, n <= 200
+board[i][j] is 'X' or 'O'.
+Accepted
+476,042
+Submissions
+1,329,094
+
+
+
+
+class Solution {
+public:
+    
+    bool dfs(vector<vector<char>>& board, int r, int c, int n, int m, vector<pair<int,int>> &v)       {
+        
+        if(r==n || c==m || r==-1 || c ==-1)    {   
+            for(int i=0; i<v.size(); i++)   {
+                board[v[i].first][v[i].second] = 'O'; 
+            }
+            v.clear();
+            // cout<<"no \n";
+            return false;
+        }
+        
+        if(board[r][c]=='X')    {
+            return true;
+        }
+        else if(board[r][c]=='O')    {
+            board[r][c] = 'X';
+            // cout<<board[r][c]<<"\n";
+            v.push_back({r,c});
+        }
+        
+        return dfs(board,r,c-1,n,m,v) && dfs(board,r-1,c,n,m,v) && dfs(board,r,c+1,n,m,v) && dfs(board,r+1,c,n,m,v);
+    
+    }
+    
+    
+    void solve(vector<vector<char>>& board) {
+        
+        int n = board.size();
+        int m = board[0].size();
+        
+        for(int i=0; i<n; i++)  {
+            for(int j=0; j<m; j++)  {
+                if(board[i][j]=='X')
+                    continue;
+                else {
+                    cout<<"yes"<<i<<" "<<j<<"\n";
+                    vector<pair<int,int>> use;
+                    dfs(board,i,j,n,m,use);
+                    use.clear();
+                }
+            }
+        }
+        
+        return ;
+        
+    }
+};
