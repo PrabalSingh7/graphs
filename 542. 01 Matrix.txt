@@ -44,65 +44,52 @@ Submissions
 
 class Solution {
 public:
-    
-    void bfs(vector<vector<int>>& mat, int n, int m, int i, int j, vector<vector<int>> &res)   {
+ vector<vector<int>> updateMatrix(vector<vector<int>>& mat) {
         
-        queue<pair<pair<int,int>,int>> q;
-        q.push({{i,j},0});
-        vector<int> drow{0,-1,0,1};
-        vector<int> dcol{-1,0,1,0};
+        int m = mat.size(), n = mat[0].size();
+        vector<vector<int>> res(m, vector<int>(n,INT_MAX));
+		
+		// using queue to store position of elements whose answer we know, to use it to derive others' distances
+        queue<pair<int,int>> q;
         
-        while(!q.empty())   {
+		// distance of 0 from nearest 0 will be 0 (itself)
+        for(int i=0; i<m; i++){
+            for(int j=0; j<n; j++){
+                if(mat[i][j]==0){
+                    res[i][j] = 0;
+                    q.push({i,j});
+                }
+            }
+        }
+        
+		// right, bottom, left, top - directions in which we can move
+        vector<pair<int,int>> dirs{{0,1},{1,0},{0,-1},{-1,0}};
+        
+        while(!q.empty()){
+            auto cur = q.front(); q.pop();
+			// position of element whose result is known
+            int curx = cur.first;
+            int cury = cur.second;
             
-            int r = q.front().first.first;
-            int c = q.front().first.second;
-            int steps = q.front().second;
-            q.pop();
-
-            for(int k=0; k<4; k++)  {
+			// traversing in all possible direction
+            for(auto dir: dirs){
+                int x = curx + dir.first;
+                int y = cury + dir.second;
                 
-                int dr = r + drow[k];
-                int dc = c + dcol[k];
-
-                if(dr>=0&&dr<n&&dc>=0&&dc<m)    {
-                // cout<<dr<<" "<<dc<<"\n";
-                    if(mat[dr][dc]==0)  {
-                        res[i][j] = steps+1;
-                        return;
-                    }
-                    else {
-                        q.push({{dr,dc},steps+1});
+				// if the new position is valid
+                if(x>=0 and x<m and y>=0 and y<n){
+				
+				// update the distance if previous distance is more than distance of current element + 1 (bcoz. we can move only 1 step at a time)
+                    if(res[x][y] > res[curx][cury] + 1){
+                        res[x][y] = res[curx][cury] + 1;
+						// adding result to queue to use to derive other distances
+                        q.push({x,y});
                     }
                 }
             }
         }
         
-        return;
-    }
-    
-    
-    vector<vector<int>> updateMatrix(vector<vector<int>>& mat) {
-        
-        int n = mat.size();
-        int m = mat[0].size();
-        vector<vector<int>> distance(n, vector<int>(m,-1));
-        
-        for(int i=0; i<n; i++)  {
-            for(int j=0; j<m; j++)  {
-                
-                if(mat[i][j]==0)    {
-                    distance[i][j] = 0;
-                    continue;                    
-                }
-                
-                else {
-                    cout<<"yes "<<i<<" "<<j<<"\n";
-                    bfs(mat,n,m,i,j,distance);
-                }
-
-            }
-        }
-        
-        return distance;
+		// yayyyy now we have our result vector !!
+        return res;
     }
 };
