@@ -1,0 +1,108 @@
+542. 01 Matrix
+Medium
+
+5838
+
+291
+
+Add to List
+
+Share
+Given an m x n binary matrix mat, return the distance of the nearest 0 for each cell.
+
+The distance between two adjacent cells is 1.
+
+ 
+
+Example 1:
+
+
+Input: mat = [[0,0,0],[0,1,0],[0,0,0]]
+Output: [[0,0,0],[0,1,0],[0,0,0]]
+Example 2:
+
+
+Input: mat = [[0,0,0],[0,1,0],[1,1,1]]
+Output: [[0,0,0],[0,1,0],[1,2,1]]
+ 
+
+Constraints:
+
+m == mat.length
+n == mat[i].length
+1 <= m, n <= 104
+1 <= m * n <= 104
+mat[i][j] is either 0 or 1.
+There is at least one 0 in mat.
+Accepted
+316,878
+Submissions
+717,892
+
+
+
+
+class Solution {
+public:
+    
+    void bfs(vector<vector<int>>& mat, int n, int m, int i, int j, vector<vector<int>> &res)   {
+        
+        queue<pair<pair<int,int>,int>> q;
+        q.push({{i,j},0});
+        vector<int> drow{0,-1,0,1};
+        vector<int> dcol{-1,0,1,0};
+        
+        while(!q.empty())   {
+            
+            int r = q.front().first.first;
+            int c = q.front().first.second;
+            int steps = q.front().second;
+            q.pop();
+
+            for(int k=0; k<4; k++)  {
+                
+                int dr = r + drow[k];
+                int dc = c + dcol[k];
+
+                if(dr>=0&&dr<n&&dc>=0&&dc<m)    {
+                // cout<<dr<<" "<<dc<<"\n";
+                    if(mat[dr][dc]==0)  {
+                        res[i][j] = steps+1;
+                        return;
+                    }
+                    else {
+                        q.push({{dr,dc},steps+1});
+                    }
+                }
+            }
+        }
+        
+        return;
+    }
+    
+    
+    vector<vector<int>> updateMatrix(vector<vector<int>>& mat) {
+        
+        int n = mat.size();
+        int m = mat[0].size();
+        vector<vector<int>> distance(n, vector<int>(m,-1));
+        
+        for(int i=0; i<n; i++)  {
+            for(int j=0; j<m; j++)  {
+                
+                if(mat[i][j]==0)    {
+                    distance[i][j] = 0;
+                    continue;                    
+                }
+                
+                else {
+                    cout<<"yes "<<i<<" "<<j<<"\n";
+                    bfs(mat,n,m,i,j,distance);
+                }
+
+            }
+        }
+        
+        return distance;
+    }
+};
