@@ -1,0 +1,173 @@
+827. Making A Large Island
+Hard
+
+2778
+
+56
+
+Add to List
+
+Share
+You are given an n x n binary matrix grid. You are allowed to change at most one 0 to be 1.
+
+Return the size of the largest island in grid after applying this operation.
+
+An island is a 4-directionally connected group of 1s.
+
+ 
+
+Example 1:
+
+Input: grid = [[1,0],[0,1]]
+Output: 3
+Explanation: Change one 0 to 1 and connect two 1s, then we get an island with area = 3.
+Example 2:
+
+Input: grid = [[1,1],[1,0]]
+Output: 4
+Explanation: Change the 0 to 1 and make the island bigger, only one island with area = 4.
+Example 3:
+
+Input: grid = [[1,1],[1,1]]
+Output: 4
+Explanation: Can't change any 0 to 1, only one island with area = 4.
+ 
+
+Constraints:
+
+n == grid.length
+n == grid[i].length
+1 <= n <= 500
+grid[i][j] is either 0 or 1.
+Accepted
+122,492
+Submissions
+274,065
+
+
+
+
+class Solution {
+public:
+    
+    void bfsPaint(int i, int j, vector<vector<int>> &vis, vector<vector<int>> &area, int &currColour, vector<vector<int>> &colour, int n, vector<vector<int>>& grid)       {
+        
+        if(grid[i][j]==0)
+            return;
+        
+        vector<int> drow {0, -1, 0, 1};
+        vector<int> dcol {-1, 0, 1, 0};
+        vector<pair<int,int>> toBePainted;
+        
+        queue<pair<int,int>> q;
+        q.push({i,j});
+        vis[i][j] = 1;
+        toBePainted.push_back({i,j});
+        
+        while(!q.empty())   {
+            auto it = q.front();
+            q.pop();
+            int r = it.first;
+            int c = it.second;
+            
+            for(int k=0;k<4;k++)    {
+                int dr = r+drow[k];
+                int dc = c+dcol[k];
+                
+                if(dr>=0&&dr<n&&dc>=0&&dc<n&&vis[dr][dc]!=1&&grid[dr][dc]==1)   {
+                    q.push({dr,dc});
+                    vis[dr][dc]=1;
+                    toBePainted.push_back({dr,dc});
+                }
+            }
+        }
+        
+        int ar = toBePainted.size();
+        for(int i=0; i<ar; i++)   {
+            int r = toBePainted[i].first;
+            int c = toBePainted[i].second;
+            area[r][c] = ar;
+            colour[r][c] = currColour;
+        }
+        currColour++;
+        
+        return;
+    }
+    
+    
+    int largestIsland(vector<vector<int>>& grid) {
+        
+        int n = grid.size();
+        int currColour = 1;
+        
+        vector<vector<int>> vis(n, vector<int> (n, 0));
+        vector<vector<int>> area(n, vector<int> (n, 0));
+        vector<vector<int>> colour(n, vector<int> (n, 0));
+        
+        for(int i=0; i<n; i++)  {
+            for(int j=0; j<n; j++)  {
+                if(vis[i][j]==0)    {
+                    bfsPaint(i,j,vis,area,currColour,colour,n,grid);
+                }
+            }
+        }
+        
+        // cout<<"\n visited array = \n";
+        // for(int i=0; i<n; i++)  {
+        //     for(int j=0; j<n; j++)  {
+        //         cout<<vis[i][j]<<" ";
+        //     }
+        //     cout<<"\n";
+        // }
+        // cout<<"\n area array = \n";
+        // for(int i=0; i<n; i++)  {
+        //     for(int j=0; j<n; j++)  {
+        //         cout<<area[i][j]<<" ";
+        //     }
+        //     cout<<"\n";
+        // }
+        // cout<<"\n colour array = \n";
+        // for(int i=0; i<n; i++)  {
+        //     for(int j=0; j<n; j++)  {
+        //         cout<<colour[i][j]<<" ";
+        //     }
+        //     cout<<"\n";
+        // }
+        
+        cout<<"\n \n";
+        int res = 0;
+        vector<int> drow {0, -1, 0, 1};
+        vector<int> dcol {-1, 0, 1, 0};
+        for(int i=0; i<n; i++)  {
+            for(int j=0; j<n; j++)  {
+                if(area[i][j]==0)   {
+                    int currVal = 1;
+                    set<int> s;
+                    for(int k=0; k<4; k++)  {
+                        int di = i+drow[k];
+                        int dj = j+dcol[k];
+                        if(di>=0&&di<n&&dj>=0&&dj<n)    {
+                            int colourCode = colour[di][dj];
+                            int areaVal = area[di][dj];
+                            
+                            if(s.find(colourCode)==s.end()) {
+                                s.insert(colourCode);
+                                // cout<<di<<" "<<dj<<" "<<colourCode<<"\n";
+                                currVal += areaVal;
+                            }
+                        }
+                    }
+                    res = max(res,currVal);
+                }
+            }
+        }
+        
+        for(int i=0; i<n; i++)  {
+            for(int j=0; j<n; j++)  {
+                res = max(area[i][j],res);
+            }
+        }
+        
+        return res;
+    }
+};
