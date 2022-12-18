@@ -1,0 +1,120 @@
+1129. Shortest Path with Alternating Colors
+Medium
+1.7K
+82
+Companies
+You are given an integer n, the number of nodes in a directed graph where the nodes are labeled from 0 to n - 1. Each edge is red or blue in this graph, and there could be self-edges and parallel edges.
+
+You are given two arrays redEdges and blueEdges where:
+
+redEdges[i] = [ai, bi] indicates that there is a directed red edge from node ai to node bi in the graph, and
+blueEdges[j] = [uj, vj] indicates that there is a directed blue edge from node uj to node vj in the graph.
+Return an array answer of length n, where each answer[x] is the length of the shortest path from node 0 to node x such that the edge colors alternate along the path, or -1 if such a path does not exist.
+
+ 
+
+Example 1:
+
+Input: n = 3, redEdges = [[0,1],[1,2]], blueEdges = []
+Output: [0,1,-1]
+Example 2:
+
+Input: n = 3, redEdges = [[0,1]], blueEdges = [[2,1]]
+Output: [0,1,-1]
+ 
+
+Constraints:
+
+1 <= n <= 100
+0 <= redEdges.length, blueEdges.length <= 400
+redEdges[i].length == blueEdges[j].length == 2
+0 <= ai, bi, uj, vj < n
+Accepted
+47K
+Submissions
+109.2K
+Acceptance Rate
+43.0%
+
+
+class Solution {
+public:
+    vector<int> shortestAlternatingPaths(int n, vector<vector<int>>& redEdges, vector<vector<int>>& blueEdges) {
+
+        // using adjacency matrix & not adjacency list(because ajd_matrix can be easily modified)
+        vector<vector<int>> red_adj(n, vector<int> (n,-1));
+        vector<vector<int>> blue_adj(n, vector<int> (n,-1));
+
+        // using vector<int> to store result
+        vector<int> result(n,INT_MAX);
+
+        //preparing adjacency matrix
+        for(int i=0; i<redEdges.size(); i++)    {
+            int u = redEdges[i][0];
+            int v = redEdges[i][1];
+                red_adj[u][v] = 1;
+        }
+        for(int i=0; i<blueEdges.size(); i++)    {
+            int u = blueEdges[i][0];
+            int v = blueEdges[i][1];
+                blue_adj[u][v] = 1;
+        }
+
+        //using a queue with custom data type for modified bfs
+        queue<pair<int,pair<int,char>>> q;      //(dist,node,colour)
+        //pushing 0 node with both 'r' & 'b'
+        q.push({0,{0,'r'}});
+        q.push({0,{0,'b'}});
+        result[0] = 0;
+
+        while(!q.empty())   {
+            auto it = q.front();
+            q.pop();
+            int dist = it.first;
+            int node = it.second.first;
+            char colour = it.second.second;
+
+            //if the prev path was red , then we can only use blue path forward
+            if(colour=='r') {
+                for(int i=0; i<n; i++)  {
+                    if(blue_adj[node][i]==-1)   
+                        continue;
+                    else {
+                        int childNode = i;
+                        int check = dist+1;
+                        if(check<result[childNode]) {   //updating result if short path found
+                            result[childNode] = check;
+                        }
+                        // IMPORTANT : marking path -1 , as already visited once.
+                        blue_adj[node][i] = -1;
+                        q.push({check,{childNode,'b'}});
+                    } 
+                }
+            }
+            //if the prev path was red , then we can only use blue path forward
+            else if(colour=='b') {
+                for(int i=0; i<n; i++)  {
+                    if(red_adj[node][i]==-1)   
+                        continue;
+                    else {
+                        int childNode = i;
+                        int check = dist+1;
+                        if(check<result[childNode]) {   //updating result if short path found
+                            result[childNode] = check;
+                        }
+                        // IMPORTANT : marking path -1 , as already visited once.
+                        red_adj[node][i] = -1;
+                        q.push({check,{childNode,'r'}});
+                    }
+                }
+            }
+        }
+
+        //marking unreachable node as -1 in answer
+        for(int i=0; i<n; i++)  {
+            if(result[i]==INT_MAX)  result[i] = -1;
+        }
+
+        return result;
+    }
+};
