@@ -1,0 +1,129 @@
+2359. Find Closest Node to Given Two Nodes
+Medium
+414
+86
+Companies
+You are given a directed graph of n nodes numbered from 0 to n - 1, where each node has at most one outgoing edge.
+
+The graph is represented with a given 0-indexed array edges of size n, indicating that there is a directed edge from node i to node edges[i]. If there is no outgoing edge from i, then edges[i] == -1.
+
+You are also given two integers node1 and node2.
+
+Return the index of the node that can be reached from both node1 and node2, such that the maximum between the distance from node1 to that node, and from node2 to that node is minimized. If there are multiple answers, return the node with the smallest index, and if no possible answer exists, return -1.
+
+Note that edges may contain cycles.
+
+ 
+
+Example 1:
+
+
+Input: edges = [2,2,3,-1], node1 = 0, node2 = 1
+Output: 2
+Explanation: The distance from node 0 to node 2 is 1, and the distance from node 1 to node 2 is 1.
+The maximum of those two distances is 1. It can be proven that we cannot get a node with a smaller maximum distance than 1, so we return node 2.
+Example 2:
+
+
+Input: edges = [1,2,-1], node1 = 0, node2 = 2
+Output: 2
+Explanation: The distance from node 0 to node 2 is 2, and the distance from node 2 to itself is 0.
+The maximum of those two distances is 2. It can be proven that we cannot get a node with a smaller maximum distance than 2, so we return node 2.
+ 
+
+Constraints:
+
+n == edges.length
+2 <= n <= 105
+-1 <= edges[i] < n
+edges[i] != i
+0 <= node1, node2 < n
+
+
+
+class Solution {
+public:
+    int closestMeetingNode(vector<int>& edges, int node1, int node2) {
+        
+        int n = edges.size();
+        unordered_map<int,list<int>> adj;
+
+        //preparing adjList
+        for(int i=0; i<edges.size(); i++)   {
+            int u = i;
+            int v = edges[i];
+            if(v!=-1)
+                adj[u].push_back(v);
+        }    
+
+        // helping data structures
+        vector<int> distNode1 (n,-1);
+        vector<int> distNode2 (n,-1);
+        distNode1[node1] = 0;
+        distNode2[node2] = 0;
+
+        // performing bfs on node1 to all other nodes
+        queue<pair<int,int>> q;
+        q.push({node1,0});
+
+        vector<bool> vis1(n,false);
+        vis1[node1] = true;
+
+        while(!q.empty())   {
+            auto it = q.front();
+            q.pop();
+            int node = it.first;
+            int dist = it.second;
+            for(auto i : adj[node]) {
+                if(!vis1[i])  {
+                    q.push({i,dist+1});
+                    vis1[i] = true;
+                    distNode1[i] = dist+1;
+                }
+            }
+        }
+
+
+        // performing bfs on node1 to all other nodes
+
+        vector<bool> vis2(n,false);
+        vis2[node2] = true; 
+
+        q.push({node2,0});
+
+        while(!q.empty())   {
+            auto it = q.front();
+            q.pop();
+            int node = it.first;
+            int dist = it.second;
+            for(auto i : adj[node]) {
+                if(!vis2[i])  {
+                    q.push({i,dist+1});
+                    vis2[i] = true;
+                    distNode2[i] = dist+1;
+                }
+            }
+        }
+
+
+        int res = -1;
+        int gmxd = INT_MAX;
+
+        for(int i=0; i<n; i++)  {
+            // ignoring the nodes that are not mutually reachable
+            if(distNode1[i]==-1 || distNode2[i]==-1)    continue;
+            // getting maxium of distance of curr node from node1 & node2
+            int mxd = max(distNode1[i],distNode2[i]);
+            // updating our result
+            if(mxd<gmxd) {
+                gmxd = mxd;
+                res = i;
+            }
+            else if(mxd==gmxd)  {
+                res = min(res,i);
+            }
+        }
+
+    return res;
+    }
+};
