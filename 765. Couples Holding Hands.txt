@@ -1,0 +1,95 @@
+765. Couples Holding Hands
+Hard
+2K
+98
+Companies
+There are n couples sitting in 2n seats arranged in a row and want to hold hands.
+
+The people and seats are represented by an integer array row where row[i] is the ID of the person sitting in the ith seat. The couples are numbered in order, the first couple being (0, 1), the second couple being (2, 3), and so on with the last couple being (2n - 2, 2n - 1).
+
+Return the minimum number of swaps so that every couple is sitting side by side. A swap consists of choosing any two people, then they stand up and switch seats.
+
+ 
+
+Example 1:
+
+Input: row = [0,2,1,3]
+Output: 1
+Explanation: We only need to swap the second (row[1]) and third (row[2]) person.
+Example 2:
+
+Input: row = [3,2,0,1]
+Output: 0
+Explanation: All couples are already seated side by side.
+ 
+
+Constraints:
+
+2n == row.length
+2 <= n <= 30
+n is even.
+0 <= row[i] < 2n
+All the elements of row are unique.
+
+
+
+
+
+C++ || Greedy Approach || Swapping || Hashing || Commented Code
+_prabal_singh_
+100 Days Badge 2022
+2
+a few seconds ago
+Intuition
+We need to perform the right swaps .
+Approach
+Create a map with , value - index pair.
+Traverse the row array by performing suitable swaps.
+Suitable Swap -> odd's partner is odd-1
+-> even's partner is even+1
+In swap , increment the swapCount varible & update indexes in map.
+Complexity
+Time complexity : O(N)
+Space complexity : O(N)
+Code
+class Solution {
+public:
+
+    int minSwapsCouples(vector<int>& row) {
+        int swaps = 0;
+
+        //using hashMap to store the value with its index.
+        unordered_map<int,int> mp;
+        for(int i=0; i<row.size(); i++)  {
+            mp[row[i]] = i;
+        }    
+
+        for(int i=0; i<row.size()-1; i+=2)    {
+            int first = row[i];
+            int second;
+            
+            // if element is even then partner odd, vice versa
+            if(first%2==0)  {
+                second = first + 1;
+            }
+            else {
+                second = first - 1;
+            }
+            
+            //perform a swap when its needed
+            if(row[i+1] != second)  {
+                //incrementing swaps variable  each time
+                swaps++;
+                //swapping the i+1 position element with the partner 
+                int temp = row[i+1];
+                row[i+1] = row[mp[second]];
+                row[mp[second]] = temp;
+                //updating indexes in the map
+                mp[temp] = mp[second];
+                mp[second] = i+1;
+            }
+        }
+
+        return swaps;
+    }
+};
