@@ -1,0 +1,95 @@
+695. Max Area of Island
+Medium
+8.9K
+197
+Companies
+You are given an m x n binary matrix grid. An island is a group of 1's (representing land) connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+
+The area of an island is the number of cells with a value 1 in the island.
+
+Return the maximum area of an island in grid. If there is no island, return 0.
+
+ 
+
+Example 1:
+
+
+Input: grid = [[0,0,1,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,1,1,0,1,0,0,0,0,0,0,0,0],[0,1,0,0,1,1,0,0,1,0,1,0,0],[0,1,0,0,1,1,0,0,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0,1,0,0],[0,0,0,0,0,0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,1,1,0,0,0,0]]
+Output: 6
+Explanation: The answer is not 11, because the island must be connected 4-directionally.
+Example 2:
+
+Input: grid = [[0,0,0,0,0,0,0,0]]
+Output: 0
+ 
+
+Constraints:
+
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 50
+grid[i][j] is either 0 or 1.
+Accepted
+705.7K
+Submissions
+982.3K
+Acceptance Rate
+71.8%
+
+
+
+
+class Solution {
+    vector<int> drow {0,-1,0,1};
+    vector<int> dcol {-1,0,1,0};
+public:
+    int bfs(int i, int j, vector<vector<int>> grid, vector<vector<bool>> &vis)  {
+        int cnt = 0;
+        int n = grid.size();
+        int m = grid[0].size();
+
+        vis[i][j] = 1;
+        cnt++;
+
+        queue<pair<int,int>> q;
+        q.push({i,j});
+
+        while(!q.empty())   {
+            auto it = q.front();
+            q.pop();
+            int r = it.first;
+            int c = it.second;
+
+            for(int k=0; k<4; k++)  {
+                int dr = r + drow[k];
+                int dc = c + dcol[k];
+
+                if(dr>=0&&dr<n&&dc>=0&&dc<m&&grid[dr][dc]==1&&vis[dr][dc]==false)   {
+                    cnt++;
+                    vis[dr][dc] = 1;
+                    q.push({dr,dc});
+                }
+            }
+        }
+
+        return cnt;
+    }
+
+    int maxAreaOfIsland(vector<vector<int>>& grid) {
+        int n = grid.size();
+        int m = grid[0].size();
+
+        vector<vector<bool>> vis (n, vector<bool> (m,false));
+        int res = 0;
+
+        for(int i=0; i<n; i++)  {
+            for(int j=0; j<m; j++)  {
+                if(vis[i][j]==false && grid[i][j]==1)   {
+                    res = max(res,bfs(i,j,grid,vis));
+                }   
+            }
+        }
+
+        return res;
+    }
+};
